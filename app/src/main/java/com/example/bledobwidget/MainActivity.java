@@ -2,6 +2,9 @@ package com.example.bledobwidget;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.drawable.Icon;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -46,8 +49,12 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(0xfff7f9fa);
         TextView title = text("BLEDOB · управление лентой", 21);
         title.setTextColor(0xff172a33); root.addView(title);
-        TextView help = text("1. Выбери Bluetooth-устройство.  2. Добавь виджет BLEDOB Widget на рабочий стол.", 14);
+        TextView help = text("1. Выбери Bluetooth-устройство.  2. Нажми «Добавить кнопку 1×1» для создания компактного ярлыка на рабочем столе.", 14);
         help.setPadding(0, dp(12), 0, dp(14)); root.addView(help);
+        Button pinShortcut = new Button(this);
+        pinShortcut.setText("Добавить кнопку 1×1 на рабочий стол");
+        root.addView(pinShortcut);
+        pinShortcut.setOnClickListener(v -> pinPowerShortcut());
         deviceLabel = text("", 16); root.addView(deviceLabel);
         Button scan = new Button(this); scan.setText("Найти контроллер Bluetooth"); root.addView(scan);
         message = text("", 13); root.addView(message);
@@ -84,6 +91,35 @@ public class MainActivity extends Activity {
         testOff.setOnClickListener(v -> sendExplicit(false));
         ensurePermissions();
     }
+
+    // A pinned launcher shortcut occupies exactly one icon cell, even when the launcher
+    // refuses to make an AppWidget smaller than 2x2. It triggers the same BLE service.
+    private void pinPowerShortcut() {
+        ShortcutManager shortcuts = (ShortcutManager) getSystemService(SHORTCUT_SERVICE);
+        if (shortcuts == null || !shortcuts.isRequestPinShortcutSupported()) {
+            Toast.makeText(this, "Этот лаунчер не разрешает добавлять ярлыки из приложений", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Intent action = new Intent(this, ToggleActivity.class);
+        action.setAction("com.example.bledobwidget.SHORTCUT_TOGGLE");
+        action.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        ShortcutInfo info = new ShortcutInfo.Builder(this, "bledob_power_1x1")
+                .setShortLabel("Свет")
+                .setLongLabel("BLEDOB: включить/выключить")
+                .setIcon(Icon.createWithResource(this, R.drawable.widget_power))
+                .setIntent(action)
+                .build();
+        try {
+            if (shortcuts.requestPinShortcut(info, null)) {
+                Toast.makeText(this, "Подтверди добавление кнопки на рабочий стол", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Лаунчер отказал в добавлении ярлыка", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Ошибка создания ярлыка: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private TextView text(String s, int size) {
         TextView t = new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(0xff34444d); return t;
