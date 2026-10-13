@@ -55,11 +55,9 @@ public class LedWidgetProvider extends AppWidgetProvider {
         boolean configured = !p.getString("address", "").isEmpty();
         boolean on = p.getBoolean("on", false);
         boolean busy = "ЖДИТЕ".equals(status);
-        String label = !configured ? "НАСТРОИТЬ" : (status != null ? status : (on ? "ВКЛ" : "ВЫКЛ"));
         int background = "ОШИБКА".equals(status) ? R.drawable.widget_error :
                          busy ? R.drawable.widget_wait : on ? R.drawable.widget_on : R.drawable.widget_off;
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        views.setTextViewText(R.id.widget_label, label);
         views.setInt(R.id.widget_root, "setBackgroundResource", background);
         Intent click = configured ? new Intent(context, LedWidgetProvider.class).setAction(ACTION_TOGGLE)
                 : new Intent(context, MainActivity.class);
