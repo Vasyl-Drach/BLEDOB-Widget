@@ -16,8 +16,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ToggleActivity" android:exported="true"
+            android:noHistory="true"
             android:excludeFromRecents="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay"/>
         <receiver android:name=".LedWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
+import android.graphics.BitmapFactory;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -49,7 +50,7 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(0xfff7f9fa);
         TextView title = text("BLEDOB · управление лентой", 21);
         title.setTextColor(0xff172a33); root.addView(title);
-        TextView help = text("1. Выбери Bluetooth-устройство.  2. Нажми «Добавить кнопку 1×1» для создания компактного ярлыка на рабочем столе.", 14);
+        TextView help = text("1. Выбери контроллер. 2. Добавь новый ярлык 1×1: он переключает свет без открытия приложения. Старый ярлык с рабочего стола удали.", 14);
         help.setPadding(0, dp(12), 0, dp(14)); root.addView(help);
         Button pinShortcut = new Button(this);
         pinShortcut.setText("Добавить кнопку 1×1 на рабочий стол");
@@ -101,12 +102,12 @@ public class MainActivity extends Activity {
             return;
         }
         Intent action = new Intent(this, ToggleActivity.class);
-        action.setAction("com.example.bledobwidget.SHORTCUT_TOGGLE");
+        action.setAction("com.example.bledobwidget.SHORTCUT_TOGGLE_V14");
         action.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        ShortcutInfo info = new ShortcutInfo.Builder(this, "bledob_power_1x1")
+        ShortcutInfo info = new ShortcutInfo.Builder(this, "bledob_power_1x1_v14")
                 .setShortLabel("Свет")
                 .setLongLabel("BLEDOB: включить/выключить")
-                .setIcon(Icon.createWithResource(this, R.drawable.widget_power))
+                .setIcon(Icon.createWithBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.widget_power)))
                 .setIntent(action)
                 .build();
         try {

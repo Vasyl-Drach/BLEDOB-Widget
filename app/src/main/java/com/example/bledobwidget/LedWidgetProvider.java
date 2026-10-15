@@ -55,10 +55,11 @@ public class LedWidgetProvider extends AppWidgetProvider {
         boolean configured = !p.getString("address", "").isEmpty();
         boolean on = p.getBoolean("on", false);
         boolean busy = "ЖДИТЕ".equals(status);
-        int background = "ОШИБКА".equals(status) ? R.drawable.widget_error :
-                         busy ? R.drawable.widget_wait : on ? R.drawable.widget_on : R.drawable.widget_off;
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        views.setInt(R.id.widget_root, "setBackgroundResource", background);
+        // The PNG has a real alpha channel; never draw a colored tile behind it.
+        // Dim the icon when off instead of changing the entire background.
+        int alpha = "ОШИБКА".equals(status) ? 75 : busy ? 150 : on ? 255 : 140;
+        views.setInt(R.id.widget_icon, "setImageAlpha", alpha);
         Intent click = configured ? new Intent(context, LedWidgetProvider.class).setAction(ACTION_TOGGLE)
                 : new Intent(context, MainActivity.class);
         PendingIntent pi = configured
